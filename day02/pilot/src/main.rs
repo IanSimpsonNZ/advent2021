@@ -13,6 +13,7 @@ where P: AsRef<Path>, {
 fn main() {
     let mut horiz = 0;
     let mut depth = 0;
+    let mut aim = 0;
 
 
     if let Ok(lines) = read_lines("./input.txt") {
@@ -29,12 +30,13 @@ fn main() {
                     match command.chars().next().unwrap() {
                         'f' => {
                             horiz += num;
+                            depth += aim * num;
                         },
                         'd' => {
-                            depth += num;
+                            aim += num;
                         },
                         'u' => {
-                            depth -= num;
+                            aim -= num;
                         },
                         _ => {
                             println!("Invaid command: {}", command);
