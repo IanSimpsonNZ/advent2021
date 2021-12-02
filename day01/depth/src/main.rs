@@ -11,8 +11,13 @@ where P: AsRef<Path>, {
 
 
 fn main() {
-    let mut prev = u32::MAX;
     let mut increased = 0;
+
+    let mut win1:Vec<u32> = Vec::new();
+    let mut win2:Vec<u32> = Vec::new();
+
+    let mut line_count = 0;
+
 
     if let Ok(lines) = read_lines("./input.txt") {
 
@@ -20,11 +25,27 @@ fn main() {
             if let Ok(num_str) = line {
                 if let Ok(num) = num_str.parse::<u32>() {
 
-                    if num > prev {
+                    line_count += 1;
+
+                    if line_count == 1 {
+                        win1.push(num);
+                        continue;
+                    } else if line_count < 4 {
+                        win1.push(num);
+                        win2.push(num);
+                        continue;
+                    }
+
+
+                    win2.push(num);
+
+                    if win2.iter().sum::<u32>() > win1.iter().sum::<u32>() {
                         increased += 1;
                     }
 
-                    prev = num;
+                    win1 = win2.clone();
+
+                    win2.remove(0);
 
                 } else {
                     println!("Couldn't parse '{}'", num_str);
