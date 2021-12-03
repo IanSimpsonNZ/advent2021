@@ -23,6 +23,43 @@ fn count_ones(numbers: &Vec<String>, index: usize) -> usize {
     num_ones
 }
 
+fn filter_codes(codes: &Vec<String>, index: usize, most_sig: bool) -> String {
+
+    if codes.len() > 1 {
+        let mut filtered_list: Vec<String> = Vec::new();
+        let mut most_common_bit = '0';
+        let num_ones = count_ones(codes, index);
+        let num_zeros = codes.len() - num_ones;
+        if num_ones >= num_zeros {
+            most_common_bit = '1';
+        }
+
+        let search_bit = if most_sig {
+                            most_common_bit
+                         } else {
+                            if most_common_bit == '1' {
+                                '0'
+                            } else {
+                                '1'
+                            }
+        };
+
+        for code in codes {
+            if code.chars().nth(index).unwrap() == search_bit {
+                filtered_list.push(code.to_string());
+            }
+        }
+
+        filter_codes(&filtered_list, index + 1, most_sig)
+
+    } else {
+
+        codes[0].to_string()
+
+    }
+}
+
+
 fn main() {
     let mut codes: Vec<String> = Vec::new();
 
@@ -32,7 +69,6 @@ fn main() {
         for line in lines {
             if let Ok(num_str) = line {
                 codes.push(num_str);
-//                num_lines += 1;
 
             } else {
                 println!("Can't read line");
@@ -45,63 +81,8 @@ fn main() {
     }
 
 
-    let mut oxygen = codes.clone();
-    let mut index = 0;
-
-    while oxygen.len() > 1 {
-        let mut most_common_bit = '0';
-        let num_ones = count_ones(&oxygen, index);
-        let num_zeros = oxygen.len() - num_ones;
-        if num_ones >= num_zeros {
-            most_common_bit = '1';
-        }
-
-        let mut tmp:Vec<String> = Vec::new();
-        for code in oxygen {
-            let mut chars = code.chars();
-            if chars.nth(index).unwrap() == most_common_bit {
-                tmp.push(code);
-            }
-        }
-
-        oxygen = tmp;
-        println!("{:?}", oxygen);
-        println!();
-        index += 1;
-    }
-
-
-    let oxygen_val = isize::from_str_radix(&oxygen[0], 2).unwrap();
-
-    let mut carbon = codes.clone();
-    index = 0;
-
-    while carbon.len() > 1 {
-        let mut least_common_bit = '1';
-        let num_ones = count_ones(&carbon, index);
-        let num_zeros = carbon.len() - num_ones;
-        if num_ones >= num_zeros {
-            least_common_bit = '0';
-        }
-
-        let mut tmp:Vec<String> = Vec::new();
-        for code in carbon {
-            let mut chars = code.chars();
-            if chars.nth(index).unwrap() == least_common_bit {
-                tmp.push(code);
-            }
-        }
-
-        carbon = tmp;
-        println!("{:?}", carbon);
-        println!();
-        index += 1;
-    }
-
-
-
-
-    let carbon_val = isize::from_str_radix(&carbon[0], 2).unwrap();
+    let oxygen_val = isize::from_str_radix(&filter_codes(&codes, 0, true), 2).unwrap();
+    let carbon_val = isize::from_str_radix(&filter_codes(&codes, 0, false), 2).unwrap();
 
 
     println!("Answer is oxygen: {} * carbon: {} = {}", oxygen_val, carbon_val, oxygen_val * carbon_val);
