@@ -13,7 +13,7 @@ struct Card {
     squares: Vec<Square>,
     col_sum: Vec<usize>,
     row_sum: Vec<usize>,
-    pub kill: bool,
+    pub done: bool,
 }
 
 impl Card {
@@ -22,7 +22,7 @@ impl Card {
             squares: Vec::new(),
             col_sum: vec![0; size],
             row_sum: vec![0; size],
-            kill: false,
+            done: false,
         }
     }
 
@@ -139,7 +139,7 @@ fn main() {
     for n in numbers.into_iter() {
 
         for (i, c) in cards.iter_mut().enumerate() {
-            if c.check_bingo(n) {
+            if !c.done && c.check_bingo(n) {
                 if !have_a_winner {
                     println!();
                     println!("Card {} has first bingo!", i);
@@ -154,12 +154,9 @@ fn main() {
                 last_winner = c.clone();
                 last_number = n;
 
-                c.kill = true;
+                c.done = true;
             }
         }
-
-        cards.retain(|c| !c.kill)
-
     }
 
     if have_a_winner {
