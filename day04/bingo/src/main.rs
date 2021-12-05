@@ -84,7 +84,7 @@ impl Card {
 }
 
 fn main() {
-    // Get readyo to read lines
+    // Get ready to read lines
     let data_string = fs::read_to_string("input.txt").expect("Unable to read file");
     let mut data_lines = data_string.lines();
 
@@ -103,9 +103,11 @@ fn main() {
 
     for line in data_lines {
         // Blank line after a card => store card, otherwise skip the line
-        if line.len() == 0 && tmp_card.has_data() {
-            cards.push(tmp_card);
-            tmp_card = Card::new(CARD_SIZE);
+        if line.len() == 0 {
+            if tmp_card.has_data() {
+                cards.push(tmp_card);
+                tmp_card = Card::new(CARD_SIZE);
+            }
         } else {
             for v_string in line.split_ascii_whitespace() {
                 tmp_card.add_num(v_string.parse::<u32>().unwrap());
@@ -113,7 +115,7 @@ fn main() {
         }
     }
 
-    // Check if we have a final card to store (i.e. no blank line afyer last card)
+    // Check if we have a final card to store (i.e. no blank line after last card)
     if tmp_card.has_data() {
         cards.push(tmp_card);
     }
