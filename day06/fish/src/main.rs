@@ -10,8 +10,6 @@ fn main() {
         .map(|s| s.trim().parse::<u32>().unwrap())
         .collect();
 
-//    println!("Initial state: {:?}", fishes);
-
     for _day in 1..=NUM_DAYS {
         let mut new_fishes: Vec<u32> = Vec::new();
 
@@ -27,6 +25,5 @@ fn main() {
         fishes.append(&mut new_fishes);
     }
 
-//    println!("After {:2} days: {:?}", NUM_DAYS, fishes);
     println!("{} fishes", fishes.len());
 }
