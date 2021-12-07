@@ -18,9 +18,8 @@ fn main() {
     }
 
     for _day in 1..=NUM_DAYS {
-        let spawners = fish_life[pointer];
+        fish_life[(pointer + 7) % 9] += fish_life[pointer];
         pointer = (pointer + 1) % 9;
-        fish_life[(pointer + 6) % 9] += spawners;
     }
 
     let result:usize = fish_life.iter().sum();
