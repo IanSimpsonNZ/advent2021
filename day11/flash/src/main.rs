@@ -1,10 +1,5 @@
 use std::fs;
 
-//struct octopus {
-//    pub energy:u8,
-//    pub
-//}
-
 fn get_neighbours(map: &Vec<Vec<u8>>, x: usize, y: usize) -> Vec<(usize, usize)> {
     let mut result: Vec<(usize, usize)> = Vec::new();
 
@@ -45,8 +40,6 @@ fn ripple_flash(map: &mut Vec<Vec<u8>>, flashed: &mut [[bool; 10]; 10], x: usize
 
     let mut result = 1;
 
-//    println!("x: {}  y: {}  n = {:?}", x, y, get_neighbours(map, x, y));
-
     for (nx, ny) in get_neighbours(map, x, y) {
         if !flashed[ny][nx] {
             map[ny][nx] += 1;
@@ -57,7 +50,6 @@ fn ripple_flash(map: &mut Vec<Vec<u8>>, flashed: &mut [[bool; 10]; 10], x: usize
     }
 
     result
-
 }
 
 fn main() {
@@ -71,9 +63,15 @@ fn main() {
         .collect();
 
 
-    let mut num_flashes = 0;
+//    let mut num_flashes = 0;
 
-    for _ in 1..=100 {
+//    for _ in 1..=100
+
+    let mut step_count = 1;
+
+    loop {
+
+        let mut flashes_this_turn = 0;
 
         let mut flashed = [[false; 10]; 10];
 
@@ -86,11 +84,18 @@ fn main() {
         for y in 0..grid.len() {
             for x in 0..grid[0].len() {
                 if grid[y][x] > 9 && !flashed[y][x] {
-                    num_flashes += ripple_flash(&mut grid, &mut flashed, x, y);
+                    flashes_this_turn += ripple_flash(&mut grid, &mut flashed, x, y);
                 }
             }
         }
+
+        if flashes_this_turn == 100 {
+            break;
+        }
+
+        step_count += 1;
     }
 
-    println!("Num flashes = {}", num_flashes);
+//    println!("Num flashes = {}", num_flashes);
+    println!("All flashed in step {}", step_count);
 }
