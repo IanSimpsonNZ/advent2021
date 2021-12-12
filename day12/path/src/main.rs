@@ -3,15 +3,10 @@ use std::collections::HashMap;
 
 fn map_paths(map: &HashMap<String, Vec<String>>, path_so_far: &Vec<&str>, paths: &mut Vec<Vec<String>>, small_cave_visit: usize) {
 
-//    println!("Path is {:?}", path_so_far);
-
     if let Some(doors) = map.get(*path_so_far.last().unwrap()) {
-
-//        println!("Doors are {:?}", doors);
 
         for door in doors {
             if door == "end" {
-//                println!("Found end");
                 let mut full_path:Vec<String> = Vec::new();
                 for step in path_so_far {
                     full_path.push(step.to_string());
@@ -21,28 +16,20 @@ fn map_paths(map: &HashMap<String, Vec<String>>, path_so_far: &Vec<&str>, paths:
 
             } else {
 
+                let mut small_caves = small_cave_visit;
+
                 if door.chars().all(|c| matches!(c, 'a'..='z')) {
-//                    println!("Checking {}", door);
                     if path_so_far.iter().any(|cave| cave == door) {
                         if small_cave_visit == 1 || door == "start" {
-//                        println!("Already in path, quitting");
                         continue;
                         } else {
-                            let mut new_path = path_so_far.clone();
-                            new_path.push(door);
-                            map_paths(map, &new_path, paths, 1);
+                            small_caves = 1;
                         }
-                    } else {
-                        let mut new_path = path_so_far.clone();
-                        new_path.push(door);
-                        map_paths(map, &new_path, paths, small_cave_visit);
                     }
-                } else {
-//                    println!("Checking {}", door);
-                    let mut new_path = path_so_far.clone();
-                    new_path.push(door);
-                    map_paths(map, &new_path, paths, small_cave_visit);
                 }
+                let mut new_path = path_so_far.clone();
+                new_path.push(door);
+                map_paths(map, &new_path, paths, small_caves);
             }
         }
     }
@@ -69,8 +56,6 @@ fn main() {
             map.insert(to.to_string(), vec![from.to_string()]);
         }
     }
-
-//    println!("{:?}", map);
 
     let mut paths: Vec<Vec<String>> = Vec::new();
 
