@@ -1,7 +1,7 @@
 use std::fs;
 use std::collections::HashMap;
 
-fn map_paths(map: &HashMap<String, Vec<String>>, path_so_far: &Vec<&str>, paths: &mut Vec<Vec<String>>) {
+fn map_paths(map: &HashMap<String, Vec<String>>, path_so_far: &Vec<&str>, paths: &mut Vec<Vec<String>>, small_cave_visit: usize) {
 
 //    println!("Path is {:?}", path_so_far);
 
@@ -24,18 +24,24 @@ fn map_paths(map: &HashMap<String, Vec<String>>, path_so_far: &Vec<&str>, paths:
                 if door.chars().all(|c| matches!(c, 'a'..='z')) {
 //                    println!("Checking {}", door);
                     if path_so_far.iter().any(|cave| cave == door) {
+                        if small_cave_visit == 1 || door == "start" {
 //                        println!("Already in path, quitting");
                         continue;
+                        } else {
+                            let mut new_path = path_so_far.clone();
+                            new_path.push(door);
+                            map_paths(map, &new_path, paths, 1);
+                        }
                     } else {
                         let mut new_path = path_so_far.clone();
                         new_path.push(door);
-                        map_paths(map, &new_path, paths);
+                        map_paths(map, &new_path, paths, small_cave_visit);
                     }
                 } else {
 //                    println!("Checking {}", door);
                     let mut new_path = path_so_far.clone();
                     new_path.push(door);
-                    map_paths(map, &new_path, paths);
+                    map_paths(map, &new_path, paths, small_cave_visit);
                 }
             }
         }
@@ -68,7 +74,7 @@ fn main() {
 
     let mut paths: Vec<Vec<String>> = Vec::new();
 
-    map_paths(&map, &vec!["start"], &mut paths);
+    map_paths(&map, &vec!["start"], &mut paths, 2);
 
     for path in paths.iter() {
         println!("{:?}", path);
