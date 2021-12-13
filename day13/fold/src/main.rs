@@ -30,19 +30,52 @@ fn main() {
                                     .collect();
 
 
-    let fold_axis = if folds[0].0 == 'x' { 0 } else { 1 };
+// Do the folds
+    for fold in folds {
 
-    let fold_line = folds[0].1;
+        let fold_axis = if fold.0 == 'x' { 0 } else { 1 };
 
-    let mut after_fold:HashSet<[u32; 2]> = HashSet::new();
+        let fold_line = fold.1;
 
-    for point in coords {
-       let mut new_point = point.clone();
-       if point[fold_axis] > fold_line {
-            new_point[fold_axis] = 2 * fold_line - new_point[fold_axis];
-       }
-       after_fold.insert(new_point);
+        let mut after_fold:HashSet<[u32; 2]> = HashSet::new();
+
+        for point in coords {
+            let mut new_point = point.clone();
+            if point[fold_axis] > fold_line {
+                new_point[fold_axis] = 2 * fold_line - new_point[fold_axis];
+            }
+            after_fold.insert(new_point);
+        }
+
+        coords = after_fold;
     }
 
-    println!("Answer is {}", after_fold.len());
+
+// print answer
+
+    let mut max_x = 0;
+    let mut max_y = 0;
+
+    for point in coords.iter() {
+        if point[0] > max_x {
+            max_x = point[0];
+        }
+
+        if point[1] > max_y {
+            max_y = point[1];
+        }
+    }
+
+    let mut answer = vec![vec![' '; max_x as usize + 1]; max_y as usize + 1];
+    for point in coords {
+        answer[point[1] as usize][point[0] as usize] = '*';
+    }
+
+    for line in answer {
+        for ch in line {
+            print!("{}", ch);
+        }
+        println!();
+    }
+
 }
