@@ -1,44 +1,77 @@
 use std::fs;
 use std::collections::HashMap;
 
-/*
-fn dive(prev_char: char, next_char: char, rules: &HashMap<String, char>, unique_chars: &mut HashMap<char,usize>, depth: usize, max_depth: usize) {
-    if depth == max_depth {
-        if let Some(v) = unique_chars.get_mut(&prev_char) {
-            *v += 1;
+const NUM_STEPS:usize = 40;
+
+#[derive(Clone, Debug)]
+struct Node {
+    pub letters: HashMap<char, usize>,
+    pub left: String,
+    pub right: String,
+}
+
+impl Node {
+    pub fn new(idx: &str, ch: char, unique_chars: &HashMap<char, usize>) -> Node {
+        let mut new_node = Node {
+            letters: HashMap::new(),
+            left: format!("{}{}", idx.chars().nth(0).unwrap(), ch),
+            right: format!("{}{}", ch, idx.chars().nth(1).unwrap()),
+        };
+
+        for ch in unique_chars.keys() {
+            new_node.letters.insert(*ch, 0);
         }
-        if let Some(v) = unique_chars.get_mut(&next_char) {
-            *v += 1;
-        }
-    } else {
-        let index = format!("{}{}", next_char, prev_char);
-        let new_char = rules.get(&index).unwrap().clone();
-        dive(prev_char, new_char, rules, unique_chars, depth + 1, max_depth);
-        dive(new_char, next_char, rules, unique_chars, depth + 1, max_depth);
+
+        new_node
     }
 }
-*/
 
-fn print_result(result: &HashMap<String, HashMap<char, usize>>) {
-    for (poly, line) in result {
-        print!("{}", poly);
-        for (ch, val) in line {
-            print!("   {}:({:4})", ch, val);
-        }
-        println!();
+fn add_result(result: &mut HashMap<char, usize>, add: &HashMap<char, usize>) {
+    for (ch, v) in add {
+        *result.get_mut(ch).unwrap() += v;
     }
+}
+
+fn calc_result(result: &mut Vec<HashMap<String, Node>>, rules: &HashMap<String, char>, unique_chars: &HashMap<char, usize>, index: &str, level: usize) -> HashMap<char, usize> {
+
+    let right_char = index.chars().last().unwrap();
+
+    if level == NUM_STEPS {
+        let mut this_result: HashMap<char, usize> = HashMap::new();
+        for ch in unique_chars.keys() {
+            this_result.insert(*ch, 0);
+        }
+        *this_result.get_mut(&right_char).unwrap() += 1;
+
+        return this_result;
+    }
+
+    let ch = rules.get(index).unwrap();
+    let mut new_node = Node::new(index, *ch, unique_chars);
+
+    if let Some(node) = result[level + 1].get(&new_node.left) {
+        add_result(&mut new_node.letters, &node.letters);
+    } else {
+        add_result(&mut new_node.letters, &calc_result(result, rules, unique_chars, &new_node.left, level + 1));
+    }
+
+    if let Some(node) = result[level + 1].get(&new_node.right) {
+        add_result(&mut new_node.letters, &node.letters);
+    } else {
+        add_result(&mut new_node.letters, &calc_result(result, rules, unique_chars, &new_node.right, level + 1));
+    }
+
+    result[level].insert(index.to_string(), new_node.clone());
+
+    new_node.letters
 }
 
 fn main() {
     let data_string = fs::read_to_string("input.txt").expect("Can't open file");
 
     let mut lines = data_string.lines();
-
-    let mut polymer = lines.next().unwrap().to_string();
-    polymer = "NN".to_string();
-
+    let polymer = lines.next().unwrap().to_string();
     let mut rules:HashMap<String, char> = HashMap::new();
-
     lines.next().unwrap();
 
     let mut unique_chars:HashMap<char, usize> = HashMap::new();
@@ -50,142 +83,32 @@ fn main() {
         unique_chars.insert(rule_char, 0);
     }
 
-
-    let mut result: HashMap<String, HashMap<char, usize>> = HashMap::new();
-
-    for rule in &rules {
-        let mut this_result = unique_chars.clone();
-        if let Some(v) = this_result.get_mut(&rule.1) {
-            *v = 1;
-        } else {
-            panic!("Can't find {}", &rule.1);
-        }
-        result.insert(rule.0.to_string(), this_result);
+    let mut result: Vec<HashMap<String, Node>> = Vec::new();
+    for _ in 0..=NUM_STEPS {
+        result.push(HashMap::new());
     }
-
-    println!("Step 1");
-    print_result(&result);
-
-    for step in 2..=3 {
-        let mut next_result = result.clone();
-
-        for (seq, _result_line) in &result {
-            if let Some(next_result_line) = next_result.get_mut(seq) {
-                let mut seq_chars = seq.chars();
-                let c1 = seq_chars.next().unwrap();
-                let c2 = seq_chars.next().unwrap();
-                let new_char = rules.get(seq).unwrap();
-
-                if let Some(vals) = result.get(&format!("{}{}", c1, new_char)) {
-                    for (ch, val) in vals {
-                        if let Some(new_val) = next_result_line.get_mut(ch) {
-                            *new_val += val;
-                        } else {
-                            panic!("Can't find {}", ch);
-                        }
-                    }
-                } else {
-                    panic!("Can't find {}", &format!("{}{}", c1, new_char));
-                }
-
-                if let Some(vals) = result.get(&format!("{}{}", new_char, c2)) {
-                    for (ch, val) in vals {
-                        if let Some(new_val) = next_result_line.get_mut(ch) {
-                            *new_val += val;
-                        } else {
-                            panic!("Can't find {}", ch);
-                        }
-                    }
-                } else {
-                    panic!("Can't find {}", &format!("{}{}", new_char, c2));
-                }
-
-
-            } else {
-                panic!("Can't find {}", seq);
-            }
-        }
-
-        result = next_result;
-
-        println!();
-        println!("Step {}", step);
-        print_result(&result);
-    }
-
 
     let mut poly_char = polymer.chars();
     let mut prev_char = poly_char.next().unwrap();
-    if let Some(val) = unique_chars.get_mut(&prev_char) {
-        *val += 1;
-    } else {
-        panic!("Can't find {}", &prev_char);
-    }
+
+    *unique_chars.get_mut(&prev_char).unwrap() += 1;
 
     for next_char in poly_char {
-
-        println!("Checking {}{}", prev_char, next_char);
-
-        if let Some(val) = unique_chars.get_mut(&next_char) {
-            *val += 1;
+        let index = format!("{}{}", prev_char, next_char);
+        if let Some(node) = result[0].get(&index) {
+            add_result(&mut unique_chars, &node.letters)
         } else {
-            panic!("Can't find {}", &next_char);
+            let sub_result = calc_result(&mut result, &rules, &unique_chars, &index, 0);
+            add_result(&mut unique_chars, &sub_result);
         }
 
-        if let Some(vals) = result.get(&format!("{}{}", prev_char, next_char)) {
-            for (ch, val) in vals {
-                if let Some(v) = unique_chars.get_mut(ch) {
-                    *v += val;
-                } else {
-                    panic!("Can't find {}", ch);
-                }
-            }
-        }
-
-        println!("{:?}", unique_chars);
         prev_char = next_char;
     }
 
+    let top_char = unique_chars.values().max_by(|a, b| a.cmp(&b)).unwrap();
+    let bottom_char = unique_chars.values().min_by(|a, b| a.cmp(&b)).unwrap();
 
-//    println!("{}", polymer);
-//    println!();
-//    println!("{:?}", rules);
-/*
-    for _step in 1..=10 {
-
-        let mut poly_char = polymer.chars();
-
-        let mut prev_char = poly_char.next().unwrap();
-
-//        let mut new_poly = prev_char.to_string();
-//        unique_chars.insert(prev_char, 0);
-
-        for next_char in poly_char {
-//            unique_chars.insert(next_char, 0);
-            println!("Prev / Next: {} / {}", prev_char, next_char);
-            dive(prev_char, next_char, &rules, &mut unique_chars, 0, 40);
-//            let index = format!("{}{}", prev_char, next_char);
-//            new_poly += &rules.get(&index).unwrap().to_string();
-            //        println!("{}", new_poly);
-//            new_poly += &next_char.to_string();
-            prev_char = next_char;
-        }
-
- //       polymer = new_poly;
-    }
-*/
-
-// count occurences of each character
-//    for (ch, count) in unique_chars.iter_mut() {
-//        *count = polymer.matches(*ch).count();
-//    }
-
-    let top_char = unique_chars.iter().max_by(|a, b| a.1.cmp(&b.1)).unwrap();
-    let bottom_char = unique_chars.iter().min_by(|a, b| a.1.cmp(&b.1)).unwrap();
-
-
-    println!("Most frequent char is {} ({})", top_char.0, top_char.1);
-    println!("Least frequent char is {} ({})", bottom_char.0, bottom_char.1);
-
-    println!("Answer is {}", top_char.1 - bottom_char.1);
+    println!("Answer is {}", top_char - bottom_char);
 }
+
+
