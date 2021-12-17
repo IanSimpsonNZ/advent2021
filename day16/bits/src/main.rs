@@ -36,7 +36,7 @@ impl BitStream {
         self.total_bit_pos
     }
 
-    pub fn read_bits(&mut self, n: usize) -> io::Result<(usize, usize)> {
+    pub fn read_bits(&mut self, n: usize) -> io::Result<usize> {
         let mut result = 0usize;
 
         for _ in 0..n {
@@ -46,94 +46,102 @@ impl BitStream {
                 if num_bytes == 0 || tmp[0] < b'0' {
                     return Err(io::Error::new(ErrorKind::UnexpectedEof, "End of stream"));
                 }
-//                println!("Got byte: {} = {}", tmp[0], tmp[0] as char);
                 self.curr_nibble = get_hex(&tmp[0]);
-//                println!("Tranlated to {} = {:b}", self.curr_nibble, self.curr_nibble);
                 self.bit_pos = 3
             }
 
             result = (result << 1) + (((1 << self.bit_pos) & self.curr_nibble as usize) >> self.bit_pos);
-//            println!("Bit: {}; result: {}", self.bit_pos, result);
             self.bit_pos -= 1;
             self.total_bit_pos += 1;
         }
 
-        Ok((result, 0))
+        Ok(result)
     }
 
-    fn process_literal(&mut self) -> io::Result<(usize, usize)> {
+    fn process_literal(&mut self) -> io::Result<Vec<usize>> {
         let mut last_group = false;
         let mut result = 0;
 
         while !last_group {
             let last_group_bit = self.read_bits(1)?;
-            last_group = last_group_bit.0 == 0;
+            last_group = last_group_bit == 0;
 
-            let digit = self.read_bits(4)?.0;
-//            println!("Got digit {}", digit);
+            let digit = self.read_bits(4)?;
             result = (result << 4) + digit;
-//            result = result * 10 + self.read_bits(4)?;
         }
 
-        Ok((result, 0))
+        Ok(vec![result])
     }
 
-    fn process_bit_len(&mut self, num_bits: usize) -> io::Result<(usize, usize)> {
+    fn process_bit_len(&mut self, num_bits: usize) -> io::Result<Vec<usize>> {
         let starting_bit_pos = self.get_bit_pos();
-//        println!("Starting bit pos: {}", starting_bit_pos);
 
-        let mut total_result = 0;
-        let mut total_version = 0;
+        let mut result:Vec<usize> = Vec::new();
 
         while self.get_bit_pos() < starting_bit_pos + num_bits {
-            let (result, version) = self.process_packet()?;
-            total_result += result;
-            total_version += version;
-//            println!("version is {}", version);
+            result.append(&mut self.process_packet()?);
         }
 
-        Ok((total_result, total_version))
+        Ok(result)
     }
 
-    fn process_num_packets(&mut self, num_packets: usize) -> io::Result<(usize, usize)> {
-        let mut total_result = 0;
-        let mut total_version = 0;
+    fn process_num_packets(&mut self, num_packets: usize) -> io::Result<Vec<usize>> {
+        let mut result: Vec<usize> = Vec::new();
 
         for _ in 0..num_packets {
-            let (result, version) = self.process_packet()?;
-            total_result += result;
-            total_version += version;
+            result.append(&mut self.process_packet()?);
         }
 
-        Ok((total_result, total_version))
+        Ok(result)
     }
 
-    fn process_operator(&mut self) -> io::Result<(usize, usize)> {
-        let length_type = self.read_bits(1)?.0;
+    fn process_operator(&mut self) -> io::Result<Vec<usize>> {
+        let length_type = self.read_bits(1)?;
 
         if length_type == 0 {
-            let num_bits = self.read_bits(15)?.0;
-//            println!("{} bits", num_bits);
+            let num_bits = self.read_bits(15)?;
             self.process_bit_len(num_bits)
         } else {
-            let num_packets = self.read_bits(11)?.0;
-//            println!("{} packets", num_packets);
+            let num_packets = self.read_bits(11)?;
             self.process_num_packets(num_packets)
         }
     }
 
 
-    fn process_packet(&mut self) -> io::Result<(usize, usize)> {
-        let version = self.read_bits(3)?.0;
-        let type_id = self.read_bits(3)?.0;
+    fn process_packet(&mut self) -> io::Result<Vec<usize>> {
+        let _version = self.read_bits(3)?;
+        let type_id = self.read_bits(3)?;
 
-//        println!("version: {}; type: {}", version, type_id);
         let result = match type_id {
-            4 => self.process_literal()?,
-            _ => self.process_operator()?,
+            4 => self.process_literal()?[0],
+            0 => self.process_operator()?
+                            .iter()
+                            .sum(),
+            1 => self.process_operator()?
+                            .iter()
+                            .fold(1, |prod, x| prod * x),
+            2 => *self.process_operator()?
+                            .iter()
+                            .min()
+                            .unwrap(),
+            3 => *self.process_operator()?
+                            .iter()
+                            .max()
+                            .unwrap(),
+            5 | 6 | 7 => {
+                let result = self.process_operator()?;
+                match type_id {
+                    5 => if result[0] > result[1] { 1 } else { 0 },
+                    6 => if result[0] < result[1] { 1 } else { 0 },
+                    7 => if result[0] == result[1] { 1 } else { 0 },
+                    _ => panic!("Impossible to get here"),
+                }
+            },
+
+            _ => panic!("Unknown operator"),
         };
 
-        Ok((result.0, version + result.1))
+        Ok(vec![result])
     }
 
 }
@@ -141,16 +149,15 @@ impl BitStream {
 fn main() {
     let mut stream = BitStream::new("input.txt");
 
-    let mut total_version = 0;
+    let mut answer:Vec<usize> = Vec::new();
 
     loop {
-        if let Ok(result) = stream.process_packet() {
-            total_version += result.1;
-            println!("result = {}, version = {}", result.0, result.1);
+        if let Ok(mut result) = stream.process_packet() {
+            answer.append(&mut result);
         } else {
             break;
         }
     }
 
-    println!("Sum of version numbers is {}", total_version);
+    println!("Answer is {}", answer[0]);
 }
