@@ -74,16 +74,16 @@ impl Node<usize> {
     }
 
     pub fn _print(&self) {
-        print!("{}", self.to_string());
+        print!("{}", self._to_string());
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn _to_string(&self) -> String {
         let mut result;
 
         if let Some(l) = &self.left {
-            result = format!("[{},", l.to_string());
+            result = format!("[{},", l._to_string());
             if let Some(r) = &self.right {
-                result = format!("{}{}]", result, r.to_string());
+                result = format!("{}{}]", result, r._to_string());
             } else {
                 panic!("Left value, but no right value");
             }
@@ -247,6 +247,12 @@ impl Expression<usize> {
         Expression::<usize> { head: Node::new_blank() }
     }
 
+    pub fn from_str(exp_str: &str) -> Self {
+        let mut expr = Expression::new();
+        expr.build_expression(exp_str);
+        expr
+    }
+
     pub fn build_expression(&mut self, data: &str) {
         self.head.add_expression(&mut data.chars().peekable());
     }
@@ -256,8 +262,8 @@ impl Expression<usize> {
         println!();
     }
 
-    pub fn to_string(&self) -> String {
-        self.head.to_string()
+    pub fn _to_string(&self) -> String {
+        self.head._to_string()
     }
 
     pub fn explode(&mut self) -> bool {
@@ -285,38 +291,63 @@ impl Expression<usize> {
         Expression { head: new_head }
     }
 
+    pub fn reduce(&mut self) {
+        let mut more = true;
+        while more {
+            more = self.explode();
+            if !more {
+                more = self.split();
+            }
+        }
+
+
+    }
+
 }
 
 
 fn main() {
     let data_string = fs::read_to_string("input.txt").expect("Can't read file");
 
-    let mut expression_string = data_string.lines();
+    let expression_list:Vec<&str> = data_string
+                                        .lines()
+                                        .collect();
 
-    let mut expression = Expression::new();
-    expression.build_expression(expression_string.next().unwrap());
+    let mut max_lhs = String::new();
+    let mut max_rhs = String::new();
+    let mut max_mag = 0;
 
-    for next_expr in expression_string {
-        println!("  {}", expression.to_string());
-        println!("+ {}", next_expr);
+    for l in 0..expression_list.len() {
+        for r in l..expression_list.len() {
+            let expr1 = Expression::from_str(expression_list[l]);
+            let expr2 = Expression::from_str(expression_list[r]);
+            let mut test_expr = Expression::add(expr1, expr2);
+            test_expr.reduce();
+            let this_mag = test_expr.magnitude();
 
-        let mut new_expr = Expression::new();
-        new_expr.build_expression(next_expr);
-        expression = Expression::add(expression, new_expr);
+            if this_mag > max_mag {
+                max_lhs = expression_list[l].to_string();
+                max_rhs = expression_list[r].to_string();
+                max_mag = this_mag;
+            }
 
-        let mut more = true;
-        while more {
-            more = expression.explode();
-            if !more {
-                more = expression.split();
+            let expr1 = Expression::from_str(expression_list[r]);
+            let expr2 = Expression::from_str(expression_list[l]);
+            let mut test_expr = Expression::add(expr1, expr2);
+            test_expr.reduce();
+            let this_mag = test_expr.magnitude();
+
+            if this_mag > max_mag {
+                max_lhs = expression_list[r].to_string();
+                max_rhs = expression_list[l].to_string();
+                max_mag = this_mag;
             }
         }
-
-        println!("= {}", expression.to_string());
-        println!();
-
     }
 
-    println!("Magnitude is {}", expression.magnitude())
+    println!("Largest magnitude is:");
+    println!("  {}", max_lhs);
+    println!("+ {}", max_rhs);
+    println!("With magnitude: {}", max_mag);
 
 }
