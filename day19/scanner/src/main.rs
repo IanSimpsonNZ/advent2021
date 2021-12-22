@@ -1,11 +1,11 @@
 use std::fs;
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 
 struct Point {
     pub x: isize,
     pub y: isize,
     pub z: isize,
-    pub id: isize,
+//    pub id: isize,
 }
 
 impl Point {
@@ -14,7 +14,7 @@ impl Point {
             x: x,
             y: y,
             z: z,
-            id: 0,
+//            id: 0,
         }
     }
 
@@ -135,12 +135,40 @@ fn main() {
         }
     }
 
+
     for cube in cube_list.iter_mut() {
         cube.create_ids();
 
-        println!("--- scanner {} ---", cube.num);
-        cube.print_map();
-        println!();
-
+//        println!("--- scanner {} ---", cube.num);
+//        cube.print_map();
+//        println!();
    }
+
+    let mut hit_list: Vec<HashSet<isize>> = Vec::new();
+    let mut max_hits = 0;
+    let mut max_hits_id = 0;
+
+    let ids0: HashSet<isize> = cube_list[0].id_map.keys().cloned().collect();
+
+    for cube_idx in 1..cube_list.len() {
+        let ids1: HashSet<isize> = cube_list[cube_idx].id_map.keys().cloned().collect();
+
+        let common = ids0.intersection(&ids1).cloned().collect();
+        hit_list.push(common);
+
+        println!("Cube {} has {} hits", cube_list[cube_idx].num, hit_list[cube_idx - 1].len());
+
+        if hit_list[cube_idx - 1].len() > max_hits {
+            max_hits = hit_list[cube_idx - 1].len();
+            max_hits_id = cube_idx;
+        }
+    }
+
+    println!("Cube {} has most hits ({})", cube_list[max_hits_id].num, max_hits);
+    println!();
+    for id in &hit_list[max_hits_id - 1] {
+        let t_list = cube_list[0].id_map.get(id).unwrap();
+        cube_list[0].points[t_list[0].point].print();
+        println!();
+    }
 }
