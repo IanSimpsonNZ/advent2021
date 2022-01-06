@@ -1,0 +1,265 @@
+inp w - w:1 x:0 y:0 z:0			Get 1st digit
+mul x 0 - w:1 x:0 y:0 z:0 			v Clear x
+add x z - w:1 x:0 y:0 z:0 		 	v Copy z to x
+mod x 26 - w:1 x:0 y:0 z:0 		z mod 26 -> x
+div z 1 - w:1 x:0 y:0 z:0 			// z = z
+add x 14 - w:1 x:14 y:0 z:0 		x += 14  :: z % 26 + 14   14 = "O"
+eql x w - w:1 x:0 y:0 z:0 		is w (inp) = 14 -> No (single digit) x = 0
+eql x 0 - w:1 x:1 y:0 z:0 		x = 0 if match, else 1
+mul y 0 - w:1 x:1 y:0 z:0 		 	v clear y
+add y 25 - w:1 x:1 y:25 z:0 		 	v y = 25
+mul y x - w:1 x:1 y:25 z:0 		 	v if match y = 0 else y = 25
+add y 1 - w:1 x:1 y:26 z:0		 	v y = 1 if match else 26
+mul z y - w:1 x:1 y:26 z:0		z = z if match, z * 26 if not
+mul y 0 - w:1 x:1 y:0 z:0		 	v y = 0
+add y w - w:1 x:1 y:1 z:0		 	v y = w
+add y 1 - w:1 x:1 y:2 z:0		y = w + 1
+mul y x - w:1 x:1 y:2 z:0		y = 0 if match, else w + 1
+add z y - w:1 x:1 y:2 z:2		z = z if match, z + w + 1 if not
+
+inp w - w:3 x:1 y:2 z:2			Get 2nd digit
+mul x 0 - w:3 x:0 y:2 z:2			v clear x
+add x z - w:3 x:2 y:2 z:2			v copy z to x
+mod x 26 - w:3 x:2 y:2 z:2		z mod 26 -> x
+div z 1 - w:3 x:2 y:2 z:2			// z = z
+add x 15 - w:3 x:17 y:2 z:2		x = z % 26 + 15		15 = "P"
+eql x w - w:3 x:0 y:2 z:2
+eql x 0 - w:3 x:1 y:2 z:2
+mul y 0 - w:3 x:1 y:0 z:2
+add y 25 - w:3 x:1 y:25 z:2
+mul y x - w:3 x:1 y:25 z:2
+add y 1 - w:3 x:1 y:26 z:2
+mul z y - w:3 x:1 y:26 z:52
+mul y 0 - w:3 x:1 y:0 z:52
+add y w - w:3 x:1 y:3 z:52
+add y 7 - w:3 x:1 y:10 z:52
+mul y x - w:3 x:1 y:10 z:52
+add z y - w:3 x:1 y:10 z:62
+
+inp w - w:5 x:1 y:10 z:62
+mul x 0 - w:5 x:0 y:10 z:62
+add x z - w:5 x:62 y:10 z:62
+mod x 26 - w:5 x:10 y:10 z:62
+div z 1 - w:5 x:10 y:10 z:62
+add x 15 - w:5 x:25 y:10 z:62
+eql x w - w:5 x:0 y:10 z:62
+eql x 0 - w:5 x:1 y:10 z:62
+mul y 0 - w:5 x:1 y:0 z:62
+add y 25 - w:5 x:1 y:25 z:62
+mul y x - w:5 x:1 y:25 z:62
+add y 1 - w:5 x:1 y:26 z:62
+mul z y - w:5 x:1 y:26 z:1612
+mul y 0 - w:5 x:1 y:0 z:1612
+add y w - w:5 x:1 y:5 z:1612
+add y 13 - w:5 x:1 y:18 z:1612
+mul y x - w:5 x:1 y:18 z:1612
+add z y - w:5 x:1 y:18 z:1630
+
+inp w - w:7 x:1 y:18 z:1630
+mul x 0 - w:7 x:0 y:18 z:1630
+add x z - w:7 x:1630 y:18 z:1630
+mod x 26 - w:7 x:18 y:18 z:1630
+div z 26 - w:7 x:18 y:18 z:62
+add x -6 - w:7 x:12 y:18 z:62
+eql x w - w:7 x:0 y:18 z:62
+eql x 0 - w:7 x:1 y:18 z:62
+mul y 0 - w:7 x:1 y:0 z:62
+add y 25 - w:7 x:1 y:25 z:62
+mul y x - w:7 x:1 y:25 z:62
+add y 1 - w:7 x:1 y:26 z:62
+mul z y - w:7 x:1 y:26 z:1612
+mul y 0 - w:7 x:1 y:0 z:1612
+add y w - w:7 x:1 y:7 z:1612
+add y 10 - w:7 x:1 y:17 z:1612
+mul y x - w:7 x:1 y:17 z:1612
+add z y - w:7 x:1 y:17 z:1629
+
+inp w - w:9 x:1 y:17 z:1629
+mul x 0 - w:9 x:0 y:17 z:1629
+add x z - w:9 x:1629 y:17 z:1629
+mod x 26 - w:9 x:17 y:17 z:1629
+div z 1 - w:9 x:17 y:17 z:1629
+add x 14 - w:9 x:31 y:17 z:1629
+eql x w - w:9 x:0 y:17 z:1629
+eql x 0 - w:9 x:1 y:17 z:1629
+mul y 0 - w:9 x:1 y:0 z:1629
+add y 25 - w:9 x:1 y:25 z:1629
+mul y x - w:9 x:1 y:25 z:1629
+add y 1 - w:9 x:1 y:26 z:1629
+mul z y - w:9 x:1 y:26 z:42354
+mul y 0 - w:9 x:1 y:0 z:42354
+add y w - w:9 x:1 y:9 z:42354
+add y 0 - w:9 x:1 y:9 z:42354
+mul y x - w:9 x:1 y:9 z:42354
+add z y - w:9 x:1 y:9 z:42363
+
+inp w - w:2 x:1 y:9 z:42363
+mul x 0 - w:2 x:0 y:9 z:42363
+add x z - w:2 x:42363 y:9 z:42363
+mod x 26 - w:2 x:9 y:9 z:42363
+div z 26 - w:2 x:9 y:9 z:1629
+add x -4 - w:2 x:5 y:9 z:1629
+eql x w - w:2 x:0 y:9 z:1629
+eql x 0 - w:2 x:1 y:9 z:1629
+mul y 0 - w:2 x:1 y:0 z:1629
+add y 25 - w:2 x:1 y:25 z:1629
+mul y x - w:2 x:1 y:25 z:1629
+add y 1 - w:2 x:1 y:26 z:1629
+mul z y - w:2 x:1 y:26 z:42354
+mul y 0 - w:2 x:1 y:0 z:42354
+add y w - w:2 x:1 y:2 z:42354
+add y 13 - w:2 x:1 y:15 z:42354
+mul y x - w:2 x:1 y:15 z:42354
+add z y - w:2 x:1 y:15 z:42369
+
+inp w - w:4 x:1 y:15 z:42369
+mul x 0 - w:4 x:0 y:15 z:42369
+add x z - w:4 x:42369 y:15 z:42369
+mod x 26 - w:4 x:15 y:15 z:42369
+div z 1 - w:4 x:15 y:15 z:42369
+add x 15 - w:4 x:30 y:15 z:42369
+eql x w - w:4 x:0 y:15 z:42369
+eql x 0 - w:4 x:1 y:15 z:42369
+mul y 0 - w:4 x:1 y:0 z:42369
+add y 25 - w:4 x:1 y:25 z:42369
+mul y x - w:4 x:1 y:25 z:42369
+add y 1 - w:4 x:1 y:26 z:42369
+mul z y - w:4 x:1 y:26 z:1101594
+mul y 0 - w:4 x:1 y:0 z:1101594
+add y w - w:4 x:1 y:4 z:1101594
+add y 11 - w:4 x:1 y:15 z:1101594
+mul y x - w:4 x:1 y:15 z:1101594
+add z y - w:4 x:1 y:15 z:1101609
+
+inp w - w:6 x:1 y:15 z:1101609
+mul x 0 - w:6 x:0 y:15 z:1101609
+add x z - w:6 x:1101609 y:15 z:1101609
+mod x 26 - w:6 x:15 y:15 z:1101609
+div z 1 - w:6 x:15 y:15 z:1101609
+add x 15 - w:6 x:30 y:15 z:1101609
+eql x w - w:6 x:0 y:15 z:1101609
+eql x 0 - w:6 x:1 y:15 z:1101609
+mul y 0 - w:6 x:1 y:0 z:1101609
+add y 25 - w:6 x:1 y:25 z:1101609
+mul y x - w:6 x:1 y:25 z:1101609
+add y 1 - w:6 x:1 y:26 z:1101609
+mul z y - w:6 x:1 y:26 z:28641834
+mul y 0 - w:6 x:1 y:0 z:28641834
+add y w - w:6 x:1 y:6 z:28641834
+add y 6 - w:6 x:1 y:12 z:28641834
+mul y x - w:6 x:1 y:12 z:28641834
+add z y - w:6 x:1 y:12 z:28641846
+
+inp w - w:8 x:1 y:12 z:28641846
+mul x 0 - w:8 x:0 y:12 z:28641846
+add x z - w:8 x:28641846 y:12 z:28641846
+mod x 26 - w:8 x:12 y:12 z:28641846
+div z 1 - w:8 x:12 y:12 z:28641846
+add x 11 - w:8 x:23 y:12 z:28641846
+eql x w - w:8 x:0 y:12 z:28641846
+eql x 0 - w:8 x:1 y:12 z:28641846
+mul y 0 - w:8 x:1 y:0 z:28641846
+add y 25 - w:8 x:1 y:25 z:28641846
+mul y x - w:8 x:1 y:25 z:28641846
+add y 1 - w:8 x:1 y:26 z:28641846
+mul z y - w:8 x:1 y:26 z:744687996
+mul y 0 - w:8 x:1 y:0 z:744687996
+add y w - w:8 x:1 y:8 z:744687996
+add y 1 - w:8 x:1 y:9 z:744687996
+mul y x - w:8 x:1 y:9 z:744687996
+add z y - w:8 x:1 y:9 z:744688005
+
+inp w - w:9 x:1 y:9 z:744688005
+mul x 0 - w:9 x:0 y:9 z:744688005
+add x z - w:9 x:744688005 y:9 z:744688005
+mod x 26 - w:9 x:9 y:9 z:744688005
+div z 26 - w:9 x:9 y:9 z:28641846
+add x 0 - w:9 x:9 y:9 z:28641846
+eql x w - w:9 x:1 y:9 z:28641846
+eql x 0 - w:9 x:0 y:9 z:28641846
+mul y 0 - w:9 x:0 y:0 z:28641846
+add y 25 - w:9 x:0 y:25 z:28641846
+mul y x - w:9 x:0 y:0 z:28641846
+add y 1 - w:9 x:0 y:1 z:28641846
+mul z y - w:9 x:0 y:1 z:28641846
+mul y 0 - w:9 x:0 y:0 z:28641846
+add y w - w:9 x:0 y:9 z:28641846
+add y 7 - w:9 x:0 y:16 z:28641846
+mul y x - w:9 x:0 y:0 z:28641846
+add z y - w:9 x:0 y:0 z:28641846
+
+inp w - w:9 x:0 y:0 z:28641846
+mul x 0 - w:9 x:0 y:0 z:28641846
+add x z - w:9 x:28641846 y:0 z:28641846
+mod x 26 - w:9 x:12 y:0 z:28641846
+div z 26 - w:9 x:12 y:0 z:1101609
+add x 0 - w:9 x:12 y:0 z:1101609
+eql x w - w:9 x:0 y:0 z:1101609
+eql x 0 - w:9 x:1 y:0 z:1101609
+mul y 0 - w:9 x:1 y:0 z:1101609
+add y 25 - w:9 x:1 y:25 z:1101609
+mul y x - w:9 x:1 y:25 z:1101609
+add y 1 - w:9 x:1 y:26 z:1101609
+mul z y - w:9 x:1 y:26 z:28641834
+mul y 0 - w:9 x:1 y:0 z:28641834
+add y w - w:9 x:1 y:9 z:28641834
+add y 11 - w:9 x:1 y:20 z:28641834
+mul y x - w:9 x:1 y:20 z:28641834
+add z y - w:9 x:1 y:20 z:28641854
+
+inp w - w:9 x:1 y:20 z:28641854
+mul x 0 - w:9 x:0 y:20 z:28641854
+add x z - w:9 x:28641854 y:20 z:28641854
+mod x 26 - w:9 x:20 y:20 z:28641854
+div z 26 - w:9 x:20 y:20 z:1101609
+add x -3 - w:9 x:17 y:20 z:1101609
+eql x w - w:9 x:0 y:20 z:1101609
+eql x 0 - w:9 x:1 y:20 z:1101609
+mul y 0 - w:9 x:1 y:0 z:1101609
+add y 25 - w:9 x:1 y:25 z:1101609
+mul y x - w:9 x:1 y:25 z:1101609
+add y 1 - w:9 x:1 y:26 z:1101609
+mul z y - w:9 x:1 y:26 z:28641834
+mul y 0 - w:9 x:1 y:0 z:28641834
+add y w - w:9 x:1 y:9 z:28641834
+add y 14 - w:9 x:1 y:23 z:28641834
+mul y x - w:9 x:1 y:23 z:28641834
+add z y - w:9 x:1 y:23 z:28641857
+
+inp w - w:9 x:1 y:23 z:28641857
+mul x 0 - w:9 x:0 y:23 z:28641857
+add x z - w:9 x:28641857 y:23 z:28641857
+mod x 26 - w:9 x:23 y:23 z:28641857
+div z 26 - w:9 x:23 y:23 z:1101609
+add x -9 - w:9 x:14 y:23 z:1101609
+eql x w - w:9 x:0 y:23 z:1101609
+eql x 0 - w:9 x:1 y:23 z:1101609
+mul y 0 - w:9 x:1 y:0 z:1101609
+add y 25 - w:9 x:1 y:25 z:1101609
+mul y x - w:9 x:1 y:25 z:1101609		(w + 4) +
+add y 1 - w:9 x:1 y:26 z:1101609		(w + 4) + z * (y + 1) == ...
+mul z y - w:9 x:1 y:26 z:28641834		(w + 4) + z * y == ...
+mul y 0 - w:9 x:1 y:0 z:28641834		(w + 4) + z == ...
+add y w - w:9 x:1 y:9 z:28641834
+add y 4 - w:9 x:1 y:13 z:28641834		(y + 4) + z == ...
+mul y x - w:9 x:1 y:13 z:28641834		y * x + z == ...
+add z y - w:9 x:1 y:13 z:28641847		y + z == [10..18] + n * 26
+
+inp w - w:9 x:1 y:13 z:28641847			get w
+mul x 0 - w:9 x:0 y:13 z:28641847
+add x z - w:9 x:28641847 y:13 z:28641847
+mod x 26 - w:9 x:13 y:13 z:28641847		x = z mod 26
+div z 26 - w:9 x:13 y:13 z:1101609		(w + 10) * x + z * x == 0
+add x -9 - w:9 x:4 y:13 z:1101609		if w == x - 9; x == 0 else x == 1   -> w = 1 => x = 10; w = 9 => x = 18
+eql x w - w:9 x:0 y:13 z:1101609
+eql x 0 - w:9 x:1 y:13 z:1101609		if w == x; x = 0 else x = 1
+mul y 0 - w:9 x:1 y:0 z:1101609
+add y 25 - w:9 x:1 y:25 z:1101609		(w + 10) * x + z * 26 * x == 0
+mul y x - w:9 x:1 y:25 z:1101609		(w + 10) * x + z * (y + 1) * x == 0
+add y 1 - w:9 x:1 y:26 z:1101609		(w + 10) * x + z * (y + 1) == 0
+mul z y - w:9 x:1 y:26 z:28641834		(w + 10) * x + z * y == 0
+mul y 0 - w:9 x:1 y:0 z:28641834		(w + 10) * x + z == 0
+add y w - w:9 x:1 y:9 z:28641834
+add y 10 - w:9 x:1 y:19 z:28641834		(y + 10) * x + z == 0
+mul y x - w:9 x:1 y:19 z:28641834		y * x + z == 0
+add z y - w:9 x:1 y:19 z:28641853		y + z == 0
